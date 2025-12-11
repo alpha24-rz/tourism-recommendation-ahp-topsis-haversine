@@ -1,0 +1,33 @@
+# Virtual environments
+env/
+venv/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Database
+*.db
+wisata_data.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.csv
+results/

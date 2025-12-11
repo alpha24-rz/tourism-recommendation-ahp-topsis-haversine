@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilih Lokasi</title>
+
+    <!-- Leaflet CSS -->
+    <link 
+      rel="stylesheet" 
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+
+    <!-- Leaflet Draw CSS (untuk menggambar) -->
+    <link 
+      rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
+    />
+
+    <!-- Font Awesome untuk ikon -->
+    <link 
+      rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Custom popup style */
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .leaflet-popup-content {
+            font-size: 14px;
+            padding: 10px;
+        }
+        
+        .coordinates-info {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .coordinate-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        /* Custom marker icon */
+        .custom-div-icon {
+            background: transparent;
+            border: none;
+        }
+        
+        .marker-pin {
+            width: 30px;
+            height: 30px;
+            border-radius: 50% 50% 50% 0;
+            background: #e74c3c;
+            position: absolute;
+            transform: rotate(-45deg);
+            left: 50%;
+            top: 50%;
+            margin: -15px 0 0 -15px;
+        }
+        
+        .marker-pin::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            margin: 3px 0 0 3px;
+            background: #fff;
+            position: absolute;
+            border-radius: 50%;
+        }
+        
+        /* Control panel */
+        .control-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 300px;
+        }
+        
+        .control-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-title i {
+            color: #3498db;
+        }
+        
+        .coordinates-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        
+        .coord-item {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .coord-label {
+            color: #7f8c8d;
+        }
+        
+        .coord-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .instructions {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        
+        /* Loading overlay */
+        #loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            flex-direction: column;
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading overlay -->
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Memuat peta...</p>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <div class="control-title">
+            <i class="fas fa-map-marker-alt"></i>
+            Pilih Lokasi
+        </div>
+        
+        <div class="coordinates-display">
+            <div class="coord-item">
+                <span class="coord-label">Latitude:</span>
+                <span id="displayLat" class="coord-value">-</span>
+            </div>
+            <div class="coord-item">
+                <span class="coord-label">Longitude:</span>
+                <span id="displayLng" class="coord-value">-</span>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <p><i class="fas fa-mouse-pointer"></i> <strong>Klik</strong> pada peta untuk menempatkan marker</p>
+            <p><i class="fas fa-arrows-alt"></i> <strong>Seret</strong> marker untuk memindahkan lokasi</p>
+            <p><i class="fas fa-search-location"></i> Gunakan kontrol zoom untuk memperbesar/memperkecil</p>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script 
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin="">
+    </script>
+
+    <!-- Leaflet Draw -->
+    <script 
+      src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js">
+    </script>
+
+    <!-- Web Channel -->
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+
+    <script>
+        // Inisialisasi variabel
+        let map = null;
+        let marker = null;
+        let initialPos = [-6.200, 106.816]; // Default: Jakarta
+        let currentZoom = 13;
+        
+        // Setup web channel
+        let pyObj = null;
+        
+        // Tunggu WebChannel siap
+        window.addEventListener('load', function() {
+            new QWebChannel(qt.webChannelTransport, function(channel) {
+                pyObj = channel.objects.pyObj;
+                console.log("WebChannel connected to Python");
+                
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                
+                // Initialize map after WebChannel is ready
+                initMap();
+            });
+        });
+        
+        function initMap() {
+            // Initialize map
+            map = L.map('map').setView(initialPos, currentZoom);
+            
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Add scale control
+            L.control.scale().addTo(map);
+            
+            // Add geolocation control
+            map.addControl(new L.Control.Geolocation({
+                position: 'topleft',
+                enableHighAccuracy: true,
+                title: "Lokasi Saya",
+                marker: {
+                    icon: L.divIcon({
+                        className: 'custom-div-icon',
+                        html: '<div class="marker-pin" style="background:#3498db"></div>',
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42]
+                    })
+                }
+            }));
+            
+            // Setup map click event
+            map.on('click', function(e) {
+                placeMarker(e.latlng.lat, e.latlng.lng, 'user_click');
+            });
+            
+            // Try to get user's location
+            getCurrentLocation();
+            
+            // Listen for location button click from Python
+            window.setUserLocation = function(lat, lng, source) {
+                placeMarker(lat, lng, source);
+                
+                if (source === 'last_location' || source === 'loaded_from_db') {
+                    showPopup(lat, lng, "Lokasi terakhir yang disimpan");
+                } else if (source === 'manual_input') {
+                    showPopup(lat, lng, "Lokasi dari input manual");
+                }
+                
+                map.setView([lat, lng], 15);
+            };
+            
+            // Reset location function
+            window.resetLocation = function() {
+                if (marker) {
+                    map.removeLayer(marker);
+                    marker = null;
+                }
+                updateDisplay('-', '-');
+                map.setView(initialPos, currentZoom);
+            };
+        }
+        
+        function placeMarker(lat, lng, source = 'user_click') {
+            let pos = [lat, lng];
+            
+            // Remove existing marker
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            
+            // Create custom icon
+            let customIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: '<div class="marker-pin"></div>',
+                iconSize: [30, 42],
+                iconAnchor: [15, 42]
+            });
+            
+            // Add new marker
+            marker = L.marker(pos, {
+                draggable: true,
+                icon: customIcon
+            }).addTo(map);
+            
+            // Add drag event
+            marker.on('dragend', function(e) {
+                let p = e.target.getLatLng();
+                updateLocation(p.lat, p.lng, 'drag');
+                showPopup(p.lat, p.lng, "Lokasi dipindahkan");
+            });
+            
+            // Update location
+            updateLocation(lat, lng, source);
+            
+            // Show popup for user clicks
+            if (source === 'user_click' || source === 'current_location') {
+                let message = source === 'current_location' 
+                    ? "Lokasi Anda saat ini" 
+                    : "Lokasi yang dipilih";
+                showPopup(lat, lng, message);
+            }
+        }
+        
+        function updateLocation(lat, lng, source) {
+            // Update display
+            updateDisplay(lat.toFixed(6), lng.toFixed(6));
+            
+            // Send to Python
+            if (pyObj) {
+                pyObj.updateLocation(lat, lng);
+            }
+        }
+        
+        function updateDisplay(lat, lng) {
+            document.getElementById('displayLat').textContent = lat;
+            document.getElementById('displayLng').textContent = lng;
+        }
+        
+        function showPopup(lat, lng, title) {
+            if (marker) {
+                let popupContent = `
+                    <div style="text-align: center;">
+                        <h4 style="margin-bottom: 10px; color: #2c3e50;">${title}</h4>
+                        <div class="coordinates-info">
+                            <div><strong>Latitude:</strong> <span class="coordinate-value">${lat.toFixed(6)}</span></div>
+                            <div><strong>Longitude:</strong> <span class="coordinate-value">${lng.toFixed(6)}</span></div>
+                        </div>
+                        <p style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">
+                            Seret marker untuk memindahkan lokasi
+                        </p>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent).openPopup();
+            }
+        }
+        
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        let lat = position.coords.latitude;
+                        let lng = position.coords.longitude;
+                        
+                        // Optionally set to current location
+                        // Uncomment if you want to automatically center on user location
+                        // placeMarker(lat, lng, 'current_location');
+                        // map.setView([lat, lng], 15);
+                        
+                        console.log("Current location obtained:", lat, lng);
+                    },
+                    function(error) {
+                        console.log("Geolocation error:", error.message);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            }
+        }
+        
+        // Error handling
+        window.addEventListener('error', function(e) {
+            console.error('Map error:', e.message);
+            document.getElementById('loading').innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; color: #e74c3c; margin-bottom: 15px;">⚠️</div>
+                    <h3>Error Memuat Peta</h3>
+                    <p>${e.message}</p>
+                    <button onclick="location.reload()" style="
+                        background: #3498db;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        margin-top: 15px;
+                        cursor: pointer;
+                    ">
+                        Muat Ulang
+                    </button>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
