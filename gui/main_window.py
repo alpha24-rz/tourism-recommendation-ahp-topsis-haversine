@@ -40,7 +40,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setMinimumSize(800, 600)
 
         # Compute sidebar width proportionally (keeps usable layout on narrow screens)
-        self._sidebar_width = int(min(320, max(180, sw * 0.18)))
+        # Range: 180-280px based on screen width percentage
+        self._sidebar_width = int(max(180, min(280, sw * 0.15)))
 
         init_db()
 
@@ -61,7 +62,7 @@ class MainWindow(QtWidgets.QMainWindow):
             border: none;
         """)
         topbar_layout = QHBoxLayout(topbar)
-        topbar_layout.setContentsMargins(12, 8, 12, 8)
+        topbar_layout.setContentsMargins(8, 8, 8, 8)
 
         # Title
         title = QLabel("AHP → TOPSIS - Destinasi Wisata")
@@ -129,18 +130,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.sidebar = QListWidget()
         # apply responsive sidebar width computed from screen geometry
         self.sidebar.setFixedWidth(self._sidebar_width)
-        self.sidebar.setSpacing(8)
+        self.sidebar.setSpacing(2)
         self.sidebar.setStyleSheet("""
             QListWidget {
                 background-color: #1F2937;
                 color: white;
                 padding: 10px;
                 border: none;
-                font-size: 16px;
+                font-size: 13px;
             }
             QListWidget::item {
-                padding: 12px;
-                margin-top: 4px;
+                padding: 10px;
+                margin: 2px 0;
                 border-radius: 6px;
             }
             QListWidget::item:selected {

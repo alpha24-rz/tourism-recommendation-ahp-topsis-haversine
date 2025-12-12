@@ -244,7 +244,7 @@ class MapsPage(QWidget):
         button_layout.setSpacing(10)
         
         # Save Button
-        btn_save = QPushButton('💾 Simpan Lokasi')
+        btn_save = QPushButton(' Simpan Lokasi')
         btn_save.clicked.connect(self.save_location)
         btn_save.setStyleSheet("""
             QPushButton {
@@ -266,7 +266,7 @@ class MapsPage(QWidget):
         self.btn_save = btn_save
         
         # Reset Button
-        btn_reset = QPushButton('🔄 Reset')
+        btn_reset = QPushButton(' Reset')
         btn_reset.clicked.connect(self.reset_location)
         btn_reset.setStyleSheet("""
             QPushButton {
@@ -283,7 +283,7 @@ class MapsPage(QWidget):
         """)
         
         # Current Location Button
-        btn_current = QPushButton('📍 Lokasi Saya')
+        btn_current = QPushButton(' Lokasi Saya')
         btn_current.clicked.connect(self._get_current_location)
         btn_current.setStyleSheet("""
             QPushButton {
