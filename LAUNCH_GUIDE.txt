@@ -1,0 +1,119 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║                                                                        ║
+║        AHP-TOPSIS DECISION SUPPORT SYSTEM - QUICK START GUIDE         ║
+║                                                                        ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+📋 PROJECT INFORMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Project Name:    AHP-TOPSIS Sistem Pengambilan Keputusan Destinasi Wisata
+Location:        /home/alpha/Documents/project/System_pengambilan_keputusan
+Status:          ✅ PRODUCTION READY
+Test Date:       December 11, 2025
+
+📦 REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Python 3.x
+✓ PyQt5 (GUI framework)
+✓ PyQtWebEngine (for maps)
+✓ pandas, numpy (data processing)
+✓ openpyxl (Excel support)
+
+All dependencies already installed ✓
+
+🚀 HOW TO RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPTION 1: Quick Start (Copy & Paste)
+────────────────────────────────────
+
+Open terminal and run:
+
+    cd /home/alpha/Documents/project/System_pengambilan_keputusan
+    QTWEBENGINE_DISABLE_SANDBOX=1 python3 app.py
+
+
+OPTION 2: Using Environment Variable
+──────────────────────────────────────
+
+    cd /home/alpha/Documents/project/System_pengambilan_keputusan
+    export QTWEBENGINE_DISABLE_SANDBOX=1
+    python3 app.py
+
+
+💡 TIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• The QTWEBENGINE_DISABLE_SANDBOX=1 is required for compatibility
+• Wait ~3-5 seconds for GUI to appear
+• Application has 6 main tabs for decision support
+• All data saved to local SQLite database (wisata_data.db)
+• Maps require internet connection for Leaflet.js
+
+📱 APPLICATION FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Tab 1: Data Wisata
+   └─ Import/manage tourism destination data (CSV/Excel)
+
+Tab 2: Peta Lokasi
+   └─ Interactive map with geolocation and coordinate selection
+
+Tab 3: Tambah Manual
+   └─ Add individual tourism destinations manually
+
+Tab 4: Bobot (AHP)
+   └─ Set analytical hierarchy process weights
+
+Tab 5: Proses & TOPSIS
+   └─ Execute TOPSIS ranking algorithm
+
+Tab 6: Hasil
+   └─ View final recommendations and rankings
+
+✅ VERIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All tests passed successfully:
+  ✓ Database module (location persistence)
+  ✓ Core algorithms (AHP, TOPSIS, Haversine)
+  ✓ GUI modules (7 page components)
+  ✓ Assets & files (maps, database)
+  ✓ Data persistence (save/load)
+
+📄 ADDITIONAL DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+See these files for more information:
+  • TEST_REPORT.md        - Comprehensive testing results
+  • README.md             - Project overview
+  • TECHNICAL.md          - Technical architecture
+  • STRUCTURE.md          - File structure
+  • QUICKSTART.md         - Feature walkthrough
+
+🆘 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Issue: "Killed" message
+Solution: Low system memory. The QTWEBENGINE_DISABLE_SANDBOX=1 is required.
+          Application works on systems with 2GB+ RAM.
+
+Issue: Maps not loading
+Solution: Check internet connection. Maps use OpenStreetMap tiles which
+          require internet access.
+
+Issue: Geolocation not working
+Solution: 1. Browser must support geolocation (modern browsers do)
+          2. You must grant location permission when prompted
+          3. Or use manual coordinate input instead
+
+═════════════════════════════════════════════════════════════════════════
+
+Ready to launch? Run:
+    QTWEBENGINE_DISABLE_SANDBOX=1 python3 app.py
+
+Good luck! 🎉
+
+═════════════════════════════════════════════════════════════════════════

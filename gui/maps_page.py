@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QLineEdit, QLabel, 
     QMessageBox, QHBoxLayout, QFrame, QGroupBox
 )
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineSettings
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtCore import pyqtSlot, QObject, QUrl, Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QFont
@@ -77,8 +77,9 @@ class MapsPage(QWidget):
         # Initialize database
         init_db()
         
+        # Build UI and setup web channel BEFORE loading the HTML to avoid
+        # race where the page's QWebChannel JS executes before Python side is ready.
         self._build()
-        self._setup_web_channel()
     
     def _build(self):
         """Build UI components."""
@@ -133,9 +134,30 @@ class MapsPage(QWidget):
         
         self.web = QWebEngineView()
         self.web.setMinimumHeight(400)
-        
-        html_path = os.path.abspath("assets/maps.html")
-        
+
+        # Allow local file (file:///) content to access remote resources
+        # (Leaflet CSS/JS/CDN) so the page loaded from disk can fetch https:// assets.
+        # This prevents CORS errors like: "Access to script at 'https://...' from origin 'file://' has been blocked".
+        try:
+            self.web.page().settings().setAttribute(
+                QWebEngineSettings.LocalContentCanAccessRemoteUrls, True
+            )
+            self.web.page().settings().setAttribute(
+                QWebEngineSettings.LocalContentCanAccessFileUrls, True
+            )
+        except Exception:
+            # Older PyQt versions might not expose these attributes; ignore safely.
+            pass
+
+        # Setup web channel BEFORE loading the page to ensure
+        # the JavaScript QWebChannel has the transport available
+        # when `qrc:///qtwebchannel/qwebchannel.js` executes.
+        self._setup_web_channel()
+
+        # Resolve asset path relative to project root (module location)
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        html_path = os.path.join(base_dir, 'assets', 'maps.html')
+
         if os.path.exists(html_path):
             self.web.load(QUrl.fromLocalFile(html_path))
         else:

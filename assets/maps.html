@@ -266,20 +266,9 @@
             // Add scale control
             L.control.scale().addTo(map);
             
-            // Add geolocation control
-            map.addControl(new L.Control.Geolocation({
-                position: 'topleft',
-                enableHighAccuracy: true,
-                title: "Lokasi Saya",
-                marker: {
-                    icon: L.divIcon({
-                        className: 'custom-div-icon',
-                        html: '<div class="marker-pin" style="background:#3498db"></div>',
-                        iconSize: [30, 42],
-                        iconAnchor: [15, 42]
-                    })
-                }
-            }));
+            // Geolocation control plugin removed (not bundled). Use the
+            // app's "Lokasi Saya" button which calls browser geolocation
+            // via JavaScript and forwards coords to Python.
             
             // Setup map click event
             map.on('click', function(e) {

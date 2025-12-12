@@ -41,7 +41,7 @@ class ProcessPage(QWidget):
             )
             return
 
-        lat, lon = load_user_location()
+        lat, lon, _ = load_user_location()
 
         if lat is None:
             QMessageBox.critical(
@@ -94,8 +94,8 @@ class ProcessPage(QWidget):
         self.parent.latest_results = df.sort_values('rank')
         self._show_process_table(df)
 
-        # Navigate to results tab
-        self.parent.tabs.setCurrentWidget(self.parent.results_page)
+        # Navigate to results tab (index 5)
+        self.parent.pages.setCurrentIndex(5)
 
     def _show_process_table(self, df):
         """Display results in table."""
