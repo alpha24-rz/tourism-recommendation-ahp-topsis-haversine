@@ -333,6 +333,25 @@ class WeightsPage(QWidget):
         self.rating_control = rating_control
         self.count_control = count_control
         self.distance_control = distance_control
+
+        # Backwards-compatible aliases for older code expecting spinboxes
+        # Do not change UI; provide attribute names used elsewhere.
+        try:
+            self.spin_price = self.price_control.spinbox
+            self.spin_rating = self.rating_control.spinbox
+            self.spin_count = self.count_control.spinbox
+            self.spin_dist = self.distance_control.spinbox
+        except Exception:
+            # If CriteriaControl internals change, fallback to exposing value() wrappers
+            class _Wrapper:
+                def __init__(self, ctrl):
+                    self._ctrl = ctrl
+                def value(self):
+                    return self._ctrl.value()
+            self.spin_price = _Wrapper(self.price_control)
+            self.spin_rating = _Wrapper(self.rating_control)
+            self.spin_count = _Wrapper(self.count_control)
+            self.spin_dist = _Wrapper(self.distance_control)
         
         self.price_pref = price_pref
         self.rating_pref = rating_pref

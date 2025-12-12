@@ -85,6 +85,22 @@ def reset_wisata_table(db_path=DB_FILE):
     conn.close()
 
 
+def delete_database_file(db_path=DB_FILE):
+    """Delete the database file from disk.
+
+    Returns True if file was deleted, False otherwise.
+    This is a destructive operation; caller may want to call `init_db()` afterwards
+    to recreate an empty database file.
+    """
+    try:
+        if os.path.exists(db_path):
+            os.remove(db_path)
+            return True
+        return False
+    except Exception:
+        return False
+
+
 def save_user_location(lat, lon, db_path=DB_FILE):
     """Save user location."""
     conn = sqlite3.connect(db_path)

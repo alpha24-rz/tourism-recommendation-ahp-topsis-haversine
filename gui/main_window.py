@@ -17,8 +17,30 @@ from core.database import init_db
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("AHP → TOPSIS - Destinasi Wisata")
-        self.resize(1200, 720)
+        self.setWindowTitle("AHP 1 TOPSIS - Destinasi Wisata")
+
+        # Determine a responsive default window size based on the primary
+        # screen available geometry so the app looks good on common PC/laptop
+        # resolutions (desktop and laptop). Use a percentage of available
+        # screen area but cap to reasonable maximums.
+        try:
+            screen = QtWidgets.QApplication.primaryScreen()
+            if screen is not None:
+                geom = screen.availableGeometry()
+                sw, sh = geom.width(), geom.height()
+            else:
+                sw, sh = 1366, 768
+        except Exception:
+            sw, sh = 1366, 768
+
+        # Choose window size: up to 90% of screen width, 85% height, capped
+        win_w = int(min(1366, max(900, sw * 0.9)))
+        win_h = int(min(900, max(650, sh * 0.75)))
+        self.resize(win_w, win_h)
+        self.setMinimumSize(800, 600)
+
+        # Compute sidebar width proportionally (keeps usable layout on narrow screens)
+        self._sidebar_width = int(min(320, max(180, sw * 0.18)))
 
         init_db()
 
@@ -105,7 +127,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # SIDEBAR
         # --------------------------
         self.sidebar = QListWidget()
-        self.sidebar.setFixedWidth(220)
+        # apply responsive sidebar width computed from screen geometry
+        self.sidebar.setFixedWidth(self._sidebar_width)
         self.sidebar.setSpacing(8)
         self.sidebar.setStyleSheet("""
             QListWidget {
@@ -141,6 +164,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # PAGE STACK
         # --------------------------
         self.pages = QtWidgets.QStackedWidget()
+        # ensure pages have a reasonable minimum width on narrow screens
+        self.pages.setMinimumWidth(int(max(480, win_w - self._sidebar_width - 80)))
         content_layout.addWidget(self.pages, stretch=1)
 
         # Register Pages
